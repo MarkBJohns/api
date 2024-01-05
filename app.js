@@ -277,7 +277,7 @@ async function fetchData(page){
     }
 }
 
-$('button').not(':last').each(function(index){
+$('#names button').each(function(index){
     $(this).on('click',async function() {
         fetchData(index + 1);
     });
@@ -435,24 +435,38 @@ $('button').not(':last').each(function(index){
 async function getGoodBoy(){
     const results=await axios.get('https://dog.ceo/api/breeds/image/random');
     const goodBoy=results.data.message;
-    $('img').attr('src',goodBoy);
+    $('#dogs').attr('src',goodBoy);
 }
 
 // Using this function, we can click on the 'Random Dog' button to generate a random picture of a dog from
 //      this server. But the server also sorts the dogs by breed, so we can add a form to specify what dog 
-//      breed we want to show
+//      breed we want to show. But leaving it to an input means that the user can input something that isn't
+//      a valid dog breed.
+
+// We can get around that by using 'try' and 'catch' keywords. The 'try' keyword will specify which function
+//      we want to run under the best circumstances. It's what we assume 'should' happen so long as the user
+//      follows the steps you want them to. But if they don't we can 'catch' their error and do something 
+//      else. Rather than a simple error code in the console, we can change the webpage itself to alert the
+//      user that something went wrong, as well as what should have happened instead.
+
 async function getGoodBoyByBreed(breed){
     try{
     const formattedBreed=breed.replace(/\s+/g,'').toLowerCase();
     const url=`https://dog.ceo/api/breed/${formattedBreed}/images/random`;
     const results=await axios.get(url);
     const goodBoy=results.data.message;
-    $('img').attr('src',goodBoy);
+    $('#dogs').attr('src',goodBoy);
     }catch{
-        $('img').attr('src','https://i.imgflip.com/8b8xrl.jpg');
+        $('#dogs').attr('src','https://i.imgflip.com/8b8xrl.jpg');
         $('input').attr('placeholder','Please enter a valid dog breed');
     }
 }
+
+//      The 'try' section has some logic to format the input value into something that can populate a specific
+//      dog breed, but if anything slips through the cracks, we can update the image and placeholder text to
+//      tell the user both why the submission didn't run properly, as well as what they should do to resolve
+//      it.
+
 $('#dog-form').on('submit',function(event){
     event.preventDefault();
     const breed=$('input').val().trim();
@@ -463,3 +477,176 @@ $('#dog-form').on('submit',function(event){
     }
     $('input').val('').attr('placeholder','');
 });
+
+// ================================================================================================================
+
+//      GET PARAMS
+
+// ==============================================================
+
+// In addtion to 'get'ting information from resources, you can specify the parameters of the information 
+//      object you want by using the 'params' method. It works by adding an object with key/value pairs rather
+//      than manually typing out the query streams at the end of the url. For instance, take this Chuck Norris
+//      joke api.
+
+async function chuckNorrisJoke(){
+    const result=await axios.get('https://api.chucknorris.io/jokes/random');
+    return result.data.value;
+}
+
+//      There are various categories you can enter to get more specific types of jokes, such as fashion, food,
+//      music, or movies. You can add to the query string of your url to get jokes from that category:
+
+async function chuckNorrisAnimal(){
+    const result=await axios.get('https://api.chucknorris.io/jokes/random?category=animal');
+    console.log(result.data.value);
+}
+
+//      By adding a parem method, you can acheive the same result without actually typing the query string
+//      into the url:
+
+async function chuckNorrisPolitical(){
+    const result=await axios.get('https://api.chucknorris.io/jokes/random',{params:{category:'political'}});
+    console.log(result.data.value);
+}
+
+//      You can use this to set up more interactive queries as well by allowing your function to take
+//      argument parameters.
+
+async function chuckNorrisChoose(cat){
+    const result=await axios.get('https://api.chucknorris.io/jokes/random',{params:{category:cat}});
+    return result;
+}
+
+//      Check on the webpage, you can now choose a category for your joke and run chuckNorrisChoose() when
+//      you submit the form.
+
+$('#norris').on('submit',async function(e){
+    e.preventDefault();
+    const selected=$('select').val();
+    try{
+        const result= await chuckNorrisChoose(selected)
+        const joke=result.data.value;
+        $('#joke').text(joke);
+    }catch(error){
+        $('#joke').text("Chuck Norris doesn't approve of that joke");
+    }
+});
+
+$(document).ready(async function(){
+    try{
+        const joke=await chuckNorrisJoke();
+        $('#joke').text(joke);
+    }catch(error){
+        $('#joke').text("Chuck Norris isn't laughing");
+    }
+});
+
+// ================================================================================================================
+
+//      POST REQUESTS
+
+// ==============================================================
+
+// Just as 'get' lets you receive data from another server, 'post' can let you send data. While it's harder
+//      to find hands-on tutorials that let you practice post requests, a great example of a post request that
+//      you've likely been doing already involves social media. When you write a status update, you send 
+//      information to their servers, which in turn gets uploaded back to a live feed. You've 'posted' that 
+//      status update.
+
+// One website that allows people to test their post requests is REQ / RES, which we'll be using for this
+//      section.
+
+async function getUsers(){
+    const results=await axios.get('https://reqres.in/api/users');
+    return results.data;
+}
+async function populateUsers(){
+    try{
+        const userData=await getUsers();
+        userData.data.forEach(user=>{
+            const userId=user.id;
+            const $userDiv=$(`#users > div:nth-child(${userId})`);
+
+            if($userDiv.length){
+                $userDiv.find('h3').text(`${user.first_name} ${user.last_name}`);
+                $userDiv.find('img').attr('src',user.avatar);
+                $userDiv.find('p').text(user.email);
+            }
+        });
+    }catch(error){
+        console.error('Error populating users',error);
+    }
+}
+$(document).ready(populateUsers);
+
+//      We've used their data to populate our webpage with various users, so we know how each user should 
+//      look. Now we can try to add our own.
+
+//           async function createUser(){
+//               const result=await axios.post('https://reqres.in/api/users');
+//               return result;
+//           }
+
+// Now if you enter createUser() into the console, it will successfully return a data object, but not one 
+//      that's particularly useful. All it includes is an id and the date and time it was created. In order
+//      to make an actually useful function, we can add an object to the 'post' method (similar to parems),
+//      which will create a data object of its own.
+
+async function createUser(firstName,lastName,address,image){
+    const results=await axios.post('https://reqres.in/api/users',{first_name:firstName,last_name:lastName,
+    email:address,avatar:image});
+    return results;
+}
+
+// Because you're posting new information, you can still use functions that use the information in data 
+//      objects, such as this form to create new users on the webpage. By entering all of the key/value pairs
+//      and posting it, you can populate the webpage with your new user. Try it on the webpage, and check the
+//      console to see the data object to see what you're creating and how it's working.
+
+$(document).ready(function(){
+    $('#create input').eq(0).on('change',function(){
+        const imgUrl=$(this).val();
+        $('#profile').html(`<img src="${imgUrl}">`);
+    });
+});
+$(document).ready(function(){
+    let counter=0;
+    $('#create button').on('click',async function(){
+        let firstName=$('#create input').eq(1).val();
+        let lastName=$('#create input').eq(2).val();
+        let emailAddress=$('#create input').eq(3).val();
+        let profilePic=$('#create input').eq(0).val();
+
+        try{
+            const response=await createUser(firstName,lastName,emailAddress,profilePic);
+            addUserData(response.data,counter);
+            counter++;
+            if(counter>=5){
+                console.error('You can only add 5 new users');
+                counter=0;
+            }
+            console.log(response);
+            $('#create input').val('');
+            $('#profile img').remove();
+        }catch(error){
+            console.error('Error creating user',error);
+        }
+    })
+})
+function addUserData(data,index){
+    const newUser=$('#new-users > div').eq(index);
+    if(newUser.length===0){
+        console.error('No user found at index',index);
+        return;
+    }
+    newUser
+    .find('h3').text(`${data.first_name} ${data.last_name}`).end()
+    .find('img').attr('src',data.avatar).attr('alt','Profile Picture').end()
+    .find('p').text(data.email);
+}
+
+// Note that the url you use is the same, so you don't need any new resources to create rather than receive 
+//      data, just the 'post' method.
+
+// ================================================================================================================

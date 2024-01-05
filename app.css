@@ -1,7 +1,7 @@
 h2{
     display: flex;
 }
-div{
+#pages{
     width: 75vw;
     height: 10em;
     border: 2px solid black;
@@ -10,9 +10,67 @@ ul{
     list-style: none;
     column-count: 2;
 }
-img{
+#dogs{
     max-width: 70vw;
 }
 input{
     width: 30vw;
+}
+#norris input{
+    width: 100px;
+}
+#users{
+    display: flex;
+    gap: 2vw;
+    text-align: center;
+}
+#users > div{
+    flex: 0 0 17vw;
+    box-sizing: border-box;
+    background-color: lightgray;
+}
+#users img{
+    width: 100%;
+    height: auto;
+}
+#new-users{
+    display: flex;
+    gap: 2vw;
+    text-align: center;
+}
+#new-users > div{
+    flex: 0 0 17vw;
+    box-sizing: border-box;
+    background-color: lightgray;
+}
+#new-users img{
+    width: 100%;
+    height: auto;
+}
+#create{
+    background-color: darkgray;
+    height: 30vh;
+    width: 48vw;
+    display: flex;
+    align-items: center;
+}
+#profile{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 17vw;
+    min-height: 100%;
+    background-color: lightblue;
+}
+#profile img{
+    max-width: 100%;
+    max-height: 100%;
+}
+#container{
+    display: flex;
+    flex-direction: column;
+}
+#container input, #container button{
+    margin-bottom: 10px;
+    align-self: center;
 }
