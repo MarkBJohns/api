@@ -216,12 +216,30 @@ async function planetText(){
 }
 planetText();
 
-//      If you look at the html for this webpage, there's no text in the '#planets' headline, but if you
-//      look on the webpage itself, you can see several planets in the headline text. All of the text was 
-//      requested from the swapi server rather than manually entered. While it doesn't seem like a massive
-//      time saver with the amount of planets there, if you were to add much more data, the ability to 
-//      generate it automatically becomes much more obviously beneficial. See for yourself by running 
-//      aLotOfPlanetText() in the console.
+// ================================================================================================================
+
+//      MULTIPLE REQUESTS
+
+// ==============================================================
+
+// Say you want to get more than one page's worth of data from a server. You can add multiple asynch/await
+//      functions together.
+
+async function getNames(){
+    console.log(`The people's names are...`)
+    const response=await axios.get('https://swapi.dev/api/people');
+    for(let name of response.data.results){
+        console.log(`${name.name}`);
+    }
+    const response2=await axios.get('https://swapi.dev/api/people/?page=2');
+    for(let name of response2.data.results){
+        console.log(`${name.name}`);
+    }
+}
+
+// Running getName() in the console will return two pages worth of names, but there's a notable delay
+//      between the first and second page. If you want to load everything all at once, such as every planet
+//      in universe, run aLotOfPlanetText() and look at the webpage.   
 
 async function aLotOfPlanetText(){
     let planets=[];
@@ -233,3 +251,215 @@ async function aLotOfPlanetText(){
     const planetsText=planets.join(', ');
     $('#planets').text(planetsText);
 }
+
+//      Everything loaded at once, because there's only one large 'await' variable instead of two smaller
+//      ones. Notably, this takes much longer to load, so developers will need to choose between longer wait
+//      times for more data or shorter times for less data. A very common way is to have your data separted
+//      into pages, like the mock search function you can see on this webpage, where each page of data is
+//      represented by a new 'page' on the webpage.
+
+async function fetchData(page){
+    const url=`https://swapi.dev/api/people/?page=${page}`;
+    try{
+        const response=await axios.get(url);
+        const names=response.data.results.map(person=>person.name);
+        const $ul=$('ul');
+        $ul.empty();
+        
+        names.forEach(name=>{
+            const $li=$('<li>').text(name);
+            $ul.append($li);
+        });
+
+        $('h3').text(`Page ${page}`);
+    }catch(error){
+        console.error('Error fetching data',error);
+    }
+}
+
+$('button').not(':last').each(function(index){
+    $(this).on('click',async function() {
+        fetchData(index + 1);
+    });
+});
+
+// As an aside, one of the benefits of learning to make your functions dynamic is that this new single
+//      function replaced the over 100 lines of code I had initially written to handle each button event
+//      individually:
+
+// $('button').eq(0).on('click',async function(){
+//     try{
+//         const response=await axios.get('https://swapi.dev/api/people/');
+//         const names=response.data.results.map(person=>person.name);
+//         const $ul=$('ul');
+//         $ul.empty();
+//         names.forEach(name=>{
+//             const $li=$('<li>').text(name);
+//             $ul.append($li);
+//         });
+//         $('h3').text('Page 1');
+//     }catch(error){
+//         console.error('Error fetching data',error);
+//     }
+// });
+// $('button').eq(1).on('click',async function(){
+//     try{
+//         const response=await axios.get('https://swapi.dev/api/people/?page=2');
+//         const names=response.data.results.map(person=>person.name);
+//         const $ul=$('ul');
+//         $ul.empty();
+//         names.forEach(name=>{
+//             const $li=$('<li>').text(name);
+//             $ul.append($li);
+//         });
+//         $('h3').text('Page 2');
+//     }catch(error){
+//         console.error('Error fetching data',error);
+//     }
+// });
+// $('button').eq(2).on('click',async function(){
+//     try{
+//         const response=await axios.get('https://swapi.dev/api/people/?page=3');
+//         const names=response.data.results.map(person=>person.name);
+//         const $ul=$('ul');
+//         $ul.empty();
+//         names.forEach(name=>{
+//             const $li=$('<li>').text(name);
+//             $ul.append($li);
+//         });
+//         $('h3').text('Page 3');
+//     }catch(error){
+//         console.error('Error fetching data',error);
+//     }
+// });
+// $('button').eq(3).on('click',async function(){
+//     try{
+//         const response=await axios.get('https://swapi.dev/api/people/?page=4');
+//         const names=response.data.results.map(person=>person.name);
+//         const $ul=$('ul');
+//         $ul.empty();
+//         names.forEach(name=>{
+//             const $li=$('<li>').text(name);
+//             $ul.append($li);
+//         });
+//         $('h3').text('Page 4');
+//     }catch(error){
+//         console.error('Error fetching data',error);
+//     }
+// });
+// $('button').eq(4).on('click',async function(){
+//     try{
+//         const response=await axios.get('https://swapi.dev/api/people/?page=5');
+//         const names=response.data.results.map(person=>person.name);
+//         const $ul=$('ul');
+//         $ul.empty();
+//         names.forEach(name=>{
+//             const $li=$('<li>').text(name);
+//             $ul.append($li);
+//         });
+//         $('h3').text('Page 5');
+//     }catch(error){
+//         console.error('Error fetching data',error);
+//     }
+// });
+// $('button').eq(5).on('click',async function(){
+//     try{
+//         const response=await axios.get('https://swapi.dev/api/people/?page=6');
+//         const names=response.data.results.map(person=>person.name);
+//         const $ul=$('ul');
+//         $ul.empty();
+//         names.forEach(name=>{
+//             const $li=$('<li>').text(name);
+//             $ul.append($li);
+//             $('h3').text('Page 6');
+//         });
+//     }catch(error){
+//         console.error('Error fetching data',error);
+//     }
+// });
+// $('button').eq(6).on('click',async function(){
+//     try{
+//         const response=await axios.get('https://swapi.dev/api/people/?page=7');
+//         const names=response.data.results.map(person=>person.name);
+//         const $ul=$('ul');
+//         $ul.empty();
+//         names.forEach(name=>{
+//             const $li=$('<li>').text(name);
+//             $ul.append($li);
+//         });
+//         $('h3').text('Page 7');
+//     }catch(error){
+//         console.error('Error fetching data',error);
+//     }
+// });
+// $('button').eq(7).on('click',async function(){
+//     try{
+//         const response=await axios.get('https://swapi.dev/api/people/?page=8');
+//         const names=response.data.results.map(person=>person.name);
+//         const $ul=$('ul');
+//         $ul.empty();
+//         names.forEach(name=>{
+//             const $li=$('<li>').text(name);
+//             $ul.append($li);
+//         });
+//         $('h3').text('Page 8');
+//     }catch(error){
+//         console.error('Error fetching data',error);
+//     }
+// });
+// $('button').eq(8).on('click',async function(){
+//     try{
+//         const response=await axios.get('https://swapi.dev/api/people/?page=9');
+//         const names=response.data.results.map(person=>person.name);
+//         const $ul=$('ul');
+//         $ul.empty();
+//         names.forEach(name=>{
+//             const $li=$('<li>').text(name);
+//             $ul.append($li);
+//         });
+//         $('h3').text('Page 9');
+//     }catch(error){
+//         console.error('Error fetching data',error);
+//     }
+// });
+
+// ================================================================================================================
+
+//      TRY AND CATCH
+
+// ==============================================================
+
+// Unlike XMLHttpRequest, there is so specific 'error' event for AJAX, but it has the means to handle bad
+//      requests another way. 
+
+async function getGoodBoy(){
+    const results=await axios.get('https://dog.ceo/api/breeds/image/random');
+    const goodBoy=results.data.message;
+    $('img').attr('src',goodBoy);
+}
+
+// Using this function, we can click on the 'Random Dog' button to generate a random picture of a dog from
+//      this server. But the server also sorts the dogs by breed, so we can add a form to specify what dog 
+//      breed we want to show
+async function getGoodBoyByBreed(breed){
+    try{
+    const formattedBreed=breed.replace(/\s+/g,'').toLowerCase();
+    const url=`https://dog.ceo/api/breed/${formattedBreed}/images/random`;
+    const results=await axios.get(url);
+    const goodBoy=results.data.message;
+    $('img').attr('src',goodBoy);
+    }catch{
+        $('img').attr('src','https://i.imgflip.com/8b8xrl.jpg');
+        $('input').attr('placeholder','Please enter a valid dog breed');
+    }
+}
+$('#dog-form').on('submit',function(event){
+    event.preventDefault();
+    const breed=$('input').val().trim();
+    if(breed===''||breed.length===0){
+        getGoodBoy();
+    }else{
+        getGoodBoyByBreed(breed);
+    }
+    $('input').val('').attr('placeholder','');
+});

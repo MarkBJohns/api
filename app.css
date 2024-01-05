@@ -1,0 +1,18 @@
+h2{
+    display: flex;
+}
+div{
+    width: 75vw;
+    height: 10em;
+    border: 2px solid black;
+}
+ul{
+    list-style: none;
+    column-count: 2;
+}
+img{
+    max-width: 70vw;
+}
+input{
+    width: 30vw;
+}
